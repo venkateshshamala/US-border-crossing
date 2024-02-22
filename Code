@@ -1,1 +1,55 @@
-code
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the data
+df = pd.read_csv('/mnt/data/Border_Crossing_Entry_Data.csv')
+
+# Convert the Date column to datetime
+df['Date'] = pd.to_datetime(df['Date'])
+
+# Plot 1: Border Crossings by Type Over Time
+plt.figure(figsize=(15,7))
+for crossing_type in df['Measure'].unique():
+    subset = df[df['Measure'] == crossing_type]
+    subset = subset.groupby('Date').sum()
+    plt.plot(subset.index, subset['Value'], label=crossing_type)
+
+plt.title('Border Crossings by Type Over Time')
+plt.xlabel('Date')
+plt.ylabel('Number of Crossings')
+plt.legend()
+plt.show()
+
+# Assuming the CSV has columns 'Border' and 'Date' for the second plot
+# Plot 2: Border Crossings Comparison: US-Canada vs US-Mexico
+plt.figure(figsize=(15,7))
+pivot_table = df.pivot_table(values='Value', index=df['Date'].dt.year, columns='Border', aggfunc='sum')
+pivot_table.plot(kind='bar', figsize=(15,7))
+plt.title('Border Crossings Comparison: US-Canada vs US-Mexico')
+plt.xlabel('Year')
+plt.ylabel('Total Crossings')
+plt.show()
+
+# Assuming the CSV has a column 'State' for the third plot
+# Plot 3: Border Crossings Comparison by State
+plt.figure(figsize=(15,7))
+state_crossings = df.groupby('State')['Value'].sum().sort_values()
+state_crossings.plot(kind='bar', color='red')
+plt.title('Border Crossings Comparison by State')
+plt.xlabel('State')
+plt.ylabel('Total Crossings')
+plt.show()
+
+# Assuming the CSV has 'Latitude' and 'Longitude' columns for the fourth plot
+# Plot 4: Border Crossings by Point
+plt.figure(figsize=(15,7))
+for state in df['State'].unique():
+    subset = df[df['State'] == state]
+    plt.scatter(subset['Longitude'], subset['Latitude'], label=state)
+
+plt.title('Border Crossings by Point')
+plt.xlabel('Longitude')
+plt.ylabel('Latitude')
+plt.legend()
+plt.show()
+
